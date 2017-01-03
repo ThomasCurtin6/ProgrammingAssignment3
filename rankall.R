@@ -1,0 +1,77 @@
+# Gets a list of hospitals organized by state which are the best, worst or specific index value
+
+
+# basic reads for assignment
+rankall<-function(condition,num="best")
+  {
+  #read the file
+outc1<-read.csv("outcome-of-care-measures.csv",colClasses="character",na.strings="Not Available",stringsAsFactors=FALSE)
+#convert outcomes to numeric
+
+#check conditions and assign code to variable cc
+cc<-0
+if(condition=="heart attack")
+  {
+  cc<-11
+  }
+
+if(condition=="heart failure")
+  {
+  cc<-17
+  }
+
+if(condition=="pneumonia")
+  {
+  cc<-23
+  }
+
+  if(cc==0)
+  {
+    return(paste(condition," not found"))
+  }
+
+stlist<-unique(outc1[,7])
+rvec<-matrix(nrow=length(stlist),ncol=2)
+for( i in 1:length(stlist))
+{
+st=stlist[i]
+  
+
+outc1[,cc]<-as.numeric(outc1[,cc])
+# use dplyr function filter to get the records for the state
+
+outfilt<-filter(outc1,outc1[,7]==st)
+outfilt2<-outfilt
+
+if(num=="worst"){
+  outfilt2<-filter(outfilt,outfilt[,cc]==max(outfilt[,cc],na.rm=TRUE))
+  num=1}
+if(num=="best"){
+  outfilt2<-filter(outfilt,outfilt[,cc]==min(outfilt[,cc],na.rm=TRUE))
+  num=1}
+
+# find the best (lowest 30 day mortality)
+final<-na.omit(outfilt2[,c(7,2,cc)])
+# set the names you want
+names(final)<-(c("State","Hospital.Name","Rate")) #set the name of the 
+#sort
+#final<-final[order(-Rate),]
+#get the alphabetized first/top row
+final<-arrange(final,final[,3],final[,2]) #sort the values
+
+rvec[i,1]<-st  #load the state abbrev
+rvec[i,2]<-final[num,2]   #load the hospital name
+
+
+#View(final)1
+}
+rvec
+}
+#test scripts
+
+  
+  
+
+
+
+
