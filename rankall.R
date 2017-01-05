@@ -31,7 +31,7 @@ if(condition=="pneumonia")
   }
 
 stlist<-unique(outc1[,7])
-rvec<-matrix(nrow=length(stlist),ncol=2)
+rvec<-matrix(nrow=length(stlist),ncol=3)
 for( i in 1:length(stlist))
 {
 st=stlist[i]
@@ -43,31 +43,38 @@ outc1[,cc]<-as.numeric(outc1[,cc])
 outfilt<-filter(outc1,outc1[,7]==st)
 outfilt2<-outfilt
 
-if(num=="worst"){
-  outfilt2<-filter(outfilt,outfilt[,cc]==max(outfilt[,cc],na.rm=TRUE))
-  num=1}
-if(num=="best"){
-  outfilt2<-filter(outfilt,outfilt[,cc]==min(outfilt[,cc],na.rm=TRUE))
-  num=1}
+if(num=="worst")
+   {
+    mx<-max(outfilt[,cc],na.rm=TRUE)
+    outfilt2<-subset(outfilt,outfilt[,cc]==mx)
+    num=which(outfilt[,cc]==mx)
+    }
+
+if(num=="best")
+  {
+  mn<-min(outfilt[,cc],na.rm=TRUE)
+  outfilt2<-filter(outfilt,outfilt[,cc]==mn)
+  num=1
+  }
 
 # find the best (lowest 30 day mortality)
-final<-na.omit(outfilt2[,c(7,2,cc)])
+final<-outfilt2[,c(7,2,cc)]
 # set the names you want
 names(final)<-(c("State","Hospital.Name","Rate")) #set the name of the 
 #sort
 #final<-final[order(-Rate),]
 #get the alphabetized first/top row
-final<-arrange(final,final[,3],final[,2]) #sort the values
-
+#final<-arrange(final,final[,3],final[,2]) #sort the values
 rvec[i,1]<-st  #load the state abbrev
 rvec[i,2]<-final[num,2]   #load the hospital name
-
-
-#View(final)1
+rvec[i,3]<-final[num,3]
+#View(final)
 }
-rvec
+
+r<-as.data.frame((rvec))
+names(r)<-(c("state","hospital","rate"))
+r
 }
-#test scripts
 
   
   
